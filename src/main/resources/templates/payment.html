@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>AutoElite | Confirm Payment</title>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #C9A84C; --gold-light: #E8C96A;
+            --gold-dim: rgba(201,168,76,0.12);
+            --dark: #0A0A0B; --dark-2: #111114; --dark-3: #1A1A1F; --dark-4: #242429;
+            --glass-border: rgba(255,255,255,0.07);
+            --text: #F0EDE8; --text-dim: #8A8680;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--dark); color: var(--text);
+            min-height: 100vh;
+        }
+        nav {
+            background: var(--dark-2); border-bottom: 1px solid var(--glass-border);
+            padding: 0 40px; height: 65px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-logo { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--gold); text-decoration: none; }
+        .nav-links { display: flex; align-items: center; gap: 4px; }
+        .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 13px; padding: 7px 14px; border-radius: 8px; transition: all 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--gold); background: var(--gold-dim); }
+        .logout-btn { background: none; border: none; color: var(--text-dim); font-size: 13px; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+        .logout-btn:hover { color: #ff6b6b; background: rgba(239,68,68,0.08); }
+
+        .page-body {
+            display: flex;
+            min-height: calc(100vh - 65px);
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .payment-card {
+            width: 100%;
+            max-width: 480px;
+            background: var(--dark-2);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05));
+            border-bottom: 1px solid var(--glass-border);
+            padding: 30px;
+            text-align: center;
+        }
+        .card-icon {
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            background: var(--gold-dim);
+            border: 2px solid rgba(201,168,76,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: var(--gold);
+            margin: 0 auto 16px;
+        }
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px; color: var(--text);
+            margin-bottom: 4px;
+        }
+        .card-sub { font-size: 13px; color: var(--text-dim); }
+
+        .card-body { padding: 28px 30px; }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 14px;
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row .label { color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
+        .detail-row .label i { color: var(--gold); font-size: 13px; width: 16px; }
+        .detail-row .value { font-weight: 500; }
+        .detail-row.total .label { font-weight: 600; font-size: 15px; color: var(--text); }
+        .detail-row.total .value { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold); }
+
+        .card-actions { padding: 0 30px 30px; display: flex; flex-direction: column; gap: 10px; }
+
+        .btn-confirm {
+            width: 100%; padding: 15px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: #000; border: none; border-radius: 12px;
+            font-size: 15px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(201,168,76,0.35); }
+
+        .btn-back {
+            width: 100%; padding: 13px;
+            background: transparent; color: var(--text-dim);
+            border: 1px solid var(--glass-border); border-radius: 12px;
+            font-size: 14px; font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-back:hover { border-color: var(--gold); color: var(--gold); }
+
+        /* SUCCESS STATE */
+        .success-state { padding: 50px 30px; text-align: center; }
+        .success-icon {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: rgba(16,185,129,0.1);
+            border: 2px solid rgba(16,185,129,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px; color: #34d399;
+            margin: 0 auto 20px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+        }
+        .success-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px; color: var(--text); margin-bottom: 8px;
+        }
+        .success-sub { font-size: 14px; color: var(--text-dim); margin-bottom: 30px; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="/home" class="nav-logo">AutoElite</a>
+    <div class="nav-links">
+        <a href="/home">Home</a>
+        <a href="/book">Book Service</a>
+        <a href="/my-bookings">My Bookings</a>
+        <a href="/payment" class="active">Payment</a>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/profile">Profile</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button class="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right:5px;"></i>Logout</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page-body">
+
+    <!-- PAID SUCCESS STATE -->
+    <div class="payment-card" th:if="${booking.status == 'PAID'}">
+        <div class="success-state">
+            <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+            <div class="success-title">Payment Successful!</div>
+            <p class="success-sub">Your <span th:text="${booking.serviceType}" style="color:var(--gold);font-weight:600;"></span> service has been paid. Thank you for choosing AutoElite.</p>
+            <button class="btn-confirm" onclick="location.href='/payment'" style="max-width:240px;margin:0 auto;">
+                <i class="fa-solid fa-arrow-left"></i> Back to Payments
+            </button>
+        </div>
+    </div>
+
+    <!-- PAYMENT FORM -->
+    <div class="payment-card" th:if="${booking.status == 'APPROVED'}">
+        <div class="card-header">
+            <div class="card-icon"><i class="fa-solid fa-credit-card"></i></div>
+            <div class="card-title">Confirm Payment</div>
+            <div class="card-sub">Review your service details before paying</div>
+        </div>
+
+        <div class="card-body">
+            <div class="detail-row">
+                <div class="label"><i class="fa-solid fa-screwdriver-wrench"></i> Service Type</div>
+                <div class="value" th:text="${booking.serviceType}"></div>
+            </div>
+            <div class="detail-row">
+                <div class="label"><i class="fa-regular fa-calendar"></i> Date</div>
+                <div class="value" th:text="${booking.serviceDate}"></div>
+            </div>
+            <div class="detail-row">
+                <div class="label"><i class="fa-regular fa-clock"></i> Time</div>
+                <div class="value" th:text="${booking.serviceTime}"></div>
+            </div>
+            <div class="detail-row">
+                <div class="label"><i class="fa-solid fa-car"></i> Car Number</div>
+                <div class="value" th:text="${booking.carNumber}"></div>
+            </div>
+            <div class="detail-row total">
+                <div class="label"><i class="fa-solid fa-indian-rupee-sign"></i> Total Amount</div>
+                <div class="value" th:text="'₹' + ${amount}"></div>
+            </div>
+        </div>
+
+        <div class="card-actions">
+            <form th:action="@{'/payment/' + ${booking.id}}" method="post">
+                <button type="submit" class="btn-confirm">
+                    <i class="fa-solid fa-lock"></i>
+                    Pay ₹<span th:text="${amount}"></span> Securely
+                </button>
+            </form>
+            <button class="btn-back" onclick="location.href='/payment'">
+                <i class="fa-solid fa-arrow-left"></i> Back to Payments
+            </button>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

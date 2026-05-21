@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>AutoElite | Register</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #C9A84C;
+            --gold-light: #E8C96A;
+            --dark: #0A0A0B;
+            --dark-2: #111114;
+            --dark-3: #1A1A1F;
+            --dark-4: #242429;
+            --glass-border: rgba(255,255,255,0.08);
+            --text: #F0EDE8;
+            --text-dim: #8A8680;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+        }
+        .left-panel {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 60px;
+        }
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1600&auto=format&fit=crop') center/cover;
+            filter: brightness(0.3);
+        }
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(10,10,11,0.9) 0%, transparent 60%);
+        }
+        .brand { position: relative; z-index: 2; }
+        .brand-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            color: var(--gold);
+            line-height: 1;
+        }
+        .brand-tag {
+            font-size: 11px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-top: 8px;
+        }
+        .features {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .feature-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: rgba(201,168,76,0.12);
+            border: 1px solid rgba(201,168,76,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .feature-text { font-size: 14px; color: rgba(240,237,232,0.7); }
+
+        /* RIGHT */
+        .right-panel {
+            width: 500px;
+            background: var(--dark-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 50px;
+            border-left: 1px solid var(--glass-border);
+            overflow-y: auto;
+        }
+        .form-container { width: 100%; }
+        .form-eyebrow {
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+        .form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 30px;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .form-sub { font-size: 13px; color: var(--text-dim); margin-bottom: 32px; }
+
+        .field { margin-bottom: 18px; }
+        .field label {
+            display: block;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+        .input-wrap { position: relative; }
+        .input-wrap i.icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            font-size: 13px;
+        }
+        .input-wrap input {
+            width: 100%;
+            padding: 13px 16px 13px 42px;
+            background: var(--dark-3);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .input-wrap input:focus {
+            border-color: var(--gold);
+            background: var(--dark-4);
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+        }
+        .eye-btn {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+        .eye-btn:hover { color: var(--gold); }
+
+        .password-strength {
+            margin-top: 6px;
+            display: flex;
+            gap: 4px;
+        }
+        .strength-bar {
+            height: 3px;
+            flex: 1;
+            border-radius: 2px;
+            background: var(--dark-4);
+            transition: background 0.3s;
+        }
+        .strength-bar.weak { background: #ef4444; }
+        .strength-bar.medium { background: #f59e0b; }
+        .strength-bar.strong { background: #10b981; }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: #0A0A0B;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(201,168,76,0.35);
+        }
+        .terms {
+            font-size: 12px;
+            color: var(--text-dim);
+            text-align: center;
+            margin-top: 14px;
+            line-height: 1.5;
+        }
+        .form-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+        .form-footer a { color: var(--gold); text-decoration: none; font-weight: 500; }
+
+        @media (max-width: 900px) {
+            .left-panel { display: none; }
+            .right-panel { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="left-panel">
+    <div class="brand">
+        <div class="brand-name">AutoElite</div>
+        <div class="brand-tag">Premium Car Service</div>
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="feature-text">Secure & encrypted account protection</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div class="feature-text">Full booking history & service tracking</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon"><i class="fa-solid fa-bell"></i></div>
+                <div class="feature-text">Real-time status updates & notifications</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon"><i class="fa-solid fa-credit-card"></i></div>
+                <div class="feature-text">Easy & secure payment processing</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="right-panel">
+    <div class="form-container">
+        <div class="form-eyebrow">Get Started</div>
+        <div class="form-title">Create your account</div>
+        <div class="form-sub">Join AutoElite for premium car care</div>
+
+        <form method="post" action="/register" onsubmit="return validateForm()">
+            <div class="field">
+                <label>Full Name</label>
+                <div class="input-wrap">
+                    <i class="fa-regular fa-user icon"></i>
+                    <input type="text" name="name" placeholder="Enter your full name" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Email Address</label>
+                <div class="input-wrap">
+                    <i class="fa-regular fa-envelope icon"></i>
+                    <input type="email" name="email" placeholder="your@email.com" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Password</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-lock icon"></i>
+                    <input type="password" id="password" name="password" placeholder="Min 6 characters" required minlength="6" maxlength="30" oninput="checkStrength(this.value)">
+                    <button type="button" class="eye-btn" onclick="toggle('password', 'eye1')">
+                        <i class="fa-regular fa-eye" id="eye1"></i>
+                    </button>
+                </div>
+                <div class="password-strength">
+                    <div class="strength-bar" id="bar1"></div>
+                    <div class="strength-bar" id="bar2"></div>
+                    <div class="strength-bar" id="bar3"></div>
+                </div>
+                <div style="font-size:11px;color:var(--text-dim);margin-top:6px;">
+                    <i class="fa-solid fa-circle-info" style="color:var(--gold);margin-right:4px;"></i>
+                    Min 6 characters. Use uppercase + numbers for a strong password.
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Confirm Password</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-lock-open icon"></i>
+                    <input type="password" id="confirmPassword" placeholder="Repeat your password" required minlength="6" maxlength="30">
+                    <button type="button" class="eye-btn" onclick="toggle('confirmPassword', 'eye2')">
+                        <i class="fa-regular fa-eye" id="eye2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary">
+                <i class="fa-solid fa-user-plus" style="margin-right:8px;"></i>
+                Create Account
+            </button>
+            <div class="terms">By registering, you agree to our Terms of Service and Privacy Policy</div>
+        </form>
+
+        <div class="form-footer">
+            Already have an account? <a href="/login">Sign in</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggle(id, iconId) {
+    const input = document.getElementById(id);
+    const icon = document.getElementById(iconId);
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-regular fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fa-regular fa-eye';
+    }
+}
+
+function checkStrength(val) {
+    const bars = [document.getElementById('bar1'), document.getElementById('bar2'), document.getElementById('bar3')];
+    bars.forEach(b => b.className = 'strength-bar');
+    if (val.length > 4) bars[0].classList.add('weak');
+    if (val.length > 7) bars[1].classList.add('medium');
+    if (val.length > 10 && /[A-Z]/.test(val) && /[0-9]/.test(val)) bars[2].classList.add('strong');
+}
+
+function validateForm() {
+    const p = document.getElementById('password').value;
+    const c = document.getElementById('confirmPassword').value;
+    if (p !== c) { alert('Passwords do not match!'); return false; }
+    return true;
+}
+</script>
+</body>
+</html>

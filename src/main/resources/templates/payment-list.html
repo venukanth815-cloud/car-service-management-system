@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>AutoElite | Payments</title>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #C9A84C; --gold-light: #E8C96A;
+            --gold-dim: rgba(201,168,76,0.12);
+            --dark: #0A0A0B; --dark-2: #111114; --dark-3: #1A1A1F; --dark-4: #242429;
+            --glass-border: rgba(255,255,255,0.07);
+            --text: #F0EDE8; --text-dim: #8A8680;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; }
+        nav {
+            background: var(--dark-2); border-bottom: 1px solid var(--glass-border);
+            padding: 0 40px; height: 65px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top:0; z-index:100;
+        }
+        .nav-logo { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--gold); text-decoration: none; }
+        .nav-links { display: flex; align-items: center; gap: 4px; }
+        .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 13px; padding: 7px 14px; border-radius: 8px; transition: all 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--gold); background: var(--gold-dim); }
+        .logout-btn { background: none; border: none; color: var(--text-dim); font-size: 13px; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+        .logout-btn:hover { color: #ff6b6b; background: rgba(239,68,68,0.08); }
+
+        .page-wrap { max-width: 1100px; margin: 0 auto; padding: 40px; }
+        .page-eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+        .page-title { font-family: 'Playfair Display', serif; font-size: 30px; margin-bottom: 4px; }
+        .page-sub { font-size: 13px; color: var(--text-dim); margin-bottom: 36px; }
+
+        .section-label {
+            font-size: 13px; font-weight: 600;
+            color: var(--text); margin-bottom: 16px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-label::after {
+            content: ''; flex: 1; height: 1px; background: var(--glass-border);
+        }
+
+        .table-wrap { background: var(--dark-2); border: 1px solid var(--glass-border); border-radius: 14px; overflow: hidden; margin-bottom: 36px; }
+        table { width: 100%; border-collapse: collapse; }
+        thead tr { background: var(--dark-3); }
+        th { padding: 13px 20px; text-align: left; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); font-weight: 500; }
+        td { padding: 16px 20px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        tbody tr:hover { background: rgba(255,255,255,0.02); }
+        tbody tr:last-child td { border-bottom: none; }
+
+        .empty-row td { text-align: center; padding: 50px; color: var(--text-dim); }
+
+        .btn-pay {
+            padding: 8px 18px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: #000; border: none; border-radius: 8px;
+            font-size: 12px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+            cursor: pointer; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: all 0.3s;
+        }
+        .btn-pay:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(201,168,76,0.3); }
+
+        .badge-paid { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 600; background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+        .badge-pending { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 600; background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="/home" class="nav-logo">AutoElite</a>
+    <div class="nav-links">
+        <a href="/home">Home</a>
+        <a href="/book">Book Service</a>
+        <a href="/my-bookings">My Bookings</a>
+        <a href="/payment" class="active">Payment</a>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/profile">Profile</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button class="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right:5px;"></i>Logout</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page-wrap">
+    <div class="page-eyebrow">Billing</div>
+    <div class="page-title">Payments</div>
+    <div class="page-sub">Manage your pending and completed payments</div>
+
+    <!-- PENDING -->
+    <div class="section-label">
+        <i class="fa-regular fa-clock" style="color:var(--gold);"></i>
+        Pending Payments
+    </div>
+    <div class="table-wrap">
+        <table>
+			<thead>
+			    <tr>
+			        <th>Service</th>
+			        <th>Date</th>
+			        <th>Time</th>
+			        <th>Amount</th>
+			        <th>Status</th>
+			        <th>Invoice</th>
+			    </tr>
+			</thead>
+			<tbody>
+			    <tr th:each="b : ${paidBookings}">
+			        <td style="font-weight:500;" th:text="${b.serviceType}"></td>
+			        <td th:text="${b.serviceDate}"></td>
+			        <td th:text="${b.serviceTime}"></td>
+			        <td style="color:var(--gold);font-weight:600;" th:text="'₹' + ${#numbers.formatInteger(b.amount, 1, 'NONE')}"></td>
+			        <td><span class="badge-paid"><i class="fa-solid fa-check" style="font-size:10px;"></i>PAID</span></td>
+			        <td>
+			            <a th:href="@{'/invoice/' + ${b.id}}" class="btn-pay">
+			                <i class="fa-solid fa-file-invoice"></i> Invoice
+			            </a>
+			        </td>
+			    </tr>
+                <tr th:if="${#lists.isEmpty(pending)}" class="empty-row">
+                    <td colspan="6">
+                        <i class="fa-regular fa-circle-check" style="font-size:24px;display:block;margin-bottom:10px;color:var(--gold);"></i>
+                        No pending payments — you're all clear!
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAID -->
+    <div class="section-label">
+        <i class="fa-solid fa-circle-check" style="color:#34d399;"></i>
+        Payment History
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Service</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="b : ${paidBookings}">
+                    <td style="font-weight:500;" th:text="${b.serviceType}"></td>
+                    <td th:text="${b.serviceDate}"></td>
+                    <td th:text="${b.serviceTime}"></td>
+                    <td style="color:var(--gold);font-weight:600;" th:text="'₹' + ${#numbers.formatInteger(b.amount, 1, 'NONE')}"></td>
+                    <td><span class="badge-paid"><i class="fa-solid fa-check" style="font-size:10px;"></i>PAID</span></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(paidBookings)}" class="empty-row">
+                    <td colspan="5">
+                        <i class="fa-solid fa-receipt" style="font-size:24px;display:block;margin-bottom:10px;"></i>
+                        No payment history yet
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
