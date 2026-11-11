@@ -25,6 +25,9 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
+    @org.springframework.beans.factory.annotation.Value("${app.base-url}")
+    private String baseUrl;
+
     // ==============================
     // LOGIN
     // ==============================
@@ -119,17 +122,18 @@ public class AuthController {
         String token = UUID.randomUUID().toString();
         Customer user = userOpt.get();
         user.setResetToken(token);
+        user.setResetTokenExpiry(java.time.LocalDateTime.now().plusHours(1));
         repo.save(user);
 
         // Send reset email
-        String resetLink = "http://localhost:8081/reset?token=" + token;
+        String resetLink = baseUrl + "/reset?token=" + token;
         try {
             emailService.sendResetEmail(email, resetLink);
             model.addAttribute("message", "Password reset link sent to your email!");
         } catch (Exception e) {
             System.out.println("EMAIL ERROR: " + e.getMessage());
             e.printStackTrace();
-            model.addAttribute("error", "Failed to send email: " + e.getMessage());
+            model.addAttribute("error", "Could not send the email right now. Please try again later.");
         }
 
         return "forgot";
@@ -141,7 +145,8 @@ public class AuthController {
     @GetMapping("/reset")
     public String resetPage(@RequestParam String token, Model model) {
         // Validate token
-        if (repo.findByResetToken(token).isEmpty()) {
+        Optional<Customer> valid = repo.findByResetToken(token);
+        if (valid.isEmpty() || isExpired(valid.get())) {
             model.addAttribute("error", "Invalid or expired reset link.");
             return "forgot";
         }
@@ -160,7 +165,7 @@ public class AuthController {
 
         Optional<Customer> userOpt = repo.findByResetToken(token);
 
-        if (userOpt.isEmpty()) {
+        if (userOpt.isEmpty() || isExpired(userOpt.get())) {
             model.addAttribute("error", "Invalid or expired reset link.");
             return "forgot";
         }
@@ -168,8 +173,15 @@ public class AuthController {
         Customer user = userOpt.get();
         user.setPassword(encoder.encode(password));
         user.setResetToken(null); // Clear token after use
+        user.setResetTokenExpiry(null);
         repo.save(user);
 
         return "redirect:/login?reset=true";
+    }
+
+    // Tokens created before expiry was added have no expiry time: treat them as expired.
+    private boolean isExpired(Customer c) {
+        return c.getResetTokenExpiry() == null
+                || c.getResetTokenExpiry().isBefore(java.time.LocalDateTime.now());
     }
 }

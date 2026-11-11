@@ -21,6 +21,8 @@ public class Customer {
 
     private String resetToken;
 
+    private java.time.LocalDateTime resetTokenExpiry;
+
     @Column(nullable = false)
     private String role = "USER";
 
@@ -44,6 +46,9 @@ public class Customer {
 
     public String getResetToken() { return resetToken; }
     public void setResetToken(String resetToken) { this.resetToken = resetToken; }
+
+    public java.time.LocalDateTime getResetTokenExpiry() { return resetTokenExpiry; }
+    public void setResetTokenExpiry(java.time.LocalDateTime resetTokenExpiry) { this.resetTokenExpiry = resetTokenExpiry; }
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
