@@ -123,3 +123,22 @@ img, svg, canvas { max-width: 100%; }
 @media print {
     nav { display: block !important; }
 }
+
+/* ---------- Car photo behind the inner pages (dashboard, bookings, admin...) ---------- */
+body:has(.page-wrap)::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+        linear-gradient(rgba(10,10,11,0.55), rgba(10,10,11,0.75)),
+        url('https://images.unsplash.com/photo-1544636331-e26879cd4d9b?q=80&w=1800&auto=format&fit=crop') center / cover no-repeat;
+}
+/* let a little of the photo show through the cards */
+body:has(.page-wrap) .quick-card,
+body:has(.page-wrap) .stat-card,
+body:has(.page-wrap) .chart-card {
+    background: rgba(17,17,20,0.78);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
