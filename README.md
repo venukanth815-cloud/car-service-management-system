@@ -2,7 +2,7 @@
 
 A full-stack web application for booking and managing car services, built with Spring Boot, Thymeleaf and MySQL.
 
-**Live demo:** https://car-servicemanagement-system-1-44ol.onrender.com
+**Live demo:** https://autoelite-carservice.onrender.com (free tier: first load may take ~1 minute to wake up)
 
 ## Features
 - User registration and login (Spring Security, BCrypt password hashing)
